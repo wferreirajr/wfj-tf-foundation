@@ -6,7 +6,7 @@ provider "azurerm" {
 
 
 # INICIO da bloco de codigo para criação dos containers para toda a parte de fundação da Cloud.
-/*
+
 module "resource_group" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/resource_group"
 
@@ -49,11 +49,38 @@ module "resource_group" {
     owner-id    = "cloud-foundation"
   }
 }
-*/
+
 #  FIM da bloco de codigo para criação dos containers para toda a parte de fundação da Cloud.
 
+#  INICIO lock resource group
+
+module "azurerm_management_lock" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/azurerm_management_lock"
+
+  name       = "resource-group-level"
+  scope      = "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/audit"
+  lock_level = "ReadOnly"
+  note       = "teste lock"
+
+}
+
+#  FIM lock resource group
 
 #  INICIO da bloco de codigo para criação e aplicação de politica de controle da Cloud.
+
+module "assignment_policy" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/assignment_policy"
+
+  assignment_policy_name            = "foundation-storage-encryption"
+  assignment_policy_display_name    = "Foundation Storage Encryption"
+  assignment_policy_description     = "For block storage without encryption"
+  assignment_policy_definition_id   = "4733ea7b-a883-42fe-8cac-97454c2a9e4a"
+  assignment_policy_subscription_id = "35a89c93-cf4c-47cf-a4b0-c1db8f4241d2"
+
+}
+
+#  FIM da bloco de codigo para criação e aplicação de politica de controle da Cloud.
+
 /*
 data "azurerm_subscription" "current" {}
 
@@ -78,16 +105,3 @@ resource "azurerm_policy_definition" "example" {
 POLICY_RULE
 }
 */
-
-module "assignment_policy" {
-  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/assignment_policy"
-
-  assignment_policy_name            = "foundation-storage-encryption"
-  assignment_policy_display_name    = "Foundation Storage Encryption"
-  assignment_policy_description     = "For block storage without encryption"
-  assignment_policy_definition_id   = "4733ea7b-a883-42fe-8cac-97454c2a9e4a"
-  assignment_policy_subscription_id = "35a89c93-cf4c-47cf-a4b0-c1db8f4241d2"
-
-}
-
-#  FIM da bloco de codigo para criação e aplicação de politica de controle da Cloud.
