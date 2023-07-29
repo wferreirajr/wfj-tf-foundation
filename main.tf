@@ -48,6 +48,7 @@ module "resource_group" {
     project     = "fundacao"
     owner-id    = "cloud-foundation"
   }
+
 }
 
 #  FIM da bloco de codigo para criação dos containers para toda a parte de fundação da Cloud.
@@ -57,10 +58,21 @@ module "resource_group" {
 module "azurerm_management_lock" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/azurerm_management_lock"
 
-  name       = "resource-group-level"
-  scope      = "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/audit"
-  lock_level = "ReadOnly"
-  note       = "teste lock"
+  for_each = toset([
+    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/audit",
+    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/log-archive",
+    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/monitoring",
+    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/network",
+    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/primary-foundation",
+    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/shared-services",
+  ])
+
+  name       = "lock-iac-foundation"
+  scope      = each.value
+  lock_level = "CanNotDelete"
+  note       = "Create lock by Cloud Foundation Teams"
+
+  depends_on = [module.resource_group]
 
 }
 
@@ -80,6 +92,7 @@ module "assignment_policy" {
 }
 
 #  FIM da bloco de codigo para criação e aplicação de politica de controle da Cloud.
+
 
 /*
 data "azurerm_subscription" "current" {}
