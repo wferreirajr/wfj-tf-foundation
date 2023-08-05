@@ -119,6 +119,16 @@ module "assignment_policy" {
 #  FIM da bloco de codigo para criação e aplicação de politica de controle da Cloud.
 
 
+provider "http" {}
+
+data "http" "external_ip" {
+  url = "https://api.ipify.org?format=json"
+}
+
+output "external_ip" {
+  value = jsondecode(data.http.external_ip.response_body).ip
+}
+
 /*
 data "azurerm_subscription" "current" {}
 
