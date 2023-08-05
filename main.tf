@@ -4,6 +4,16 @@ provider "azurerm" {
   features {}
 }
 
+// como armazenar o state do terraform em um storage account?
+
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "my-portfolio"
+    storage_account_name = "wfjteste"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+  }
+}
 
 # INICIO da bloco de codigo para criação dos containers para toda a parte de fundação da Cloud.
 
@@ -58,25 +68,40 @@ module "resource_group" {
 module "azurerm_management_lock" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/azurerm_management_lock"
 
-  for_each = toset([
-    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/audit",
-    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/log-archive",
-    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/monitoring",
-    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/network",
-    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/primary-foundation",
-    "/subscriptions/35a89c93-cf4c-47cf-a4b0-c1db8f4241d2/resourceGroups/shared-services",
-  ])
+  # for_each = toset(module.resource_group.resource_group_id)
+  count = length(module.resource_group.resource_group_id)
 
-  name       = "lock-iac-foundation"
-  scope      = each.value
+  name = "lock-iac-foundation"
+  # scope      = each.value
+  scope      = module.resource_group.resource_group_id[count.index]
   lock_level = "CanNotDelete"
   note       = "Create lock by Cloud Foundation Teams"
-
-  depends_on = [module.resource_group]
 
 }
 
 #  FIM lock resource group
+
+# INICIO para a criacao do storage account para o container de fundação da Cloud.
+
+module "storage_account" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/storage_account"
+
+  stg_name                 = "wfjstorage"
+  rg_name                  = "primary-foundation"
+  location                 = "eastus"
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  additional_tags = {
+    environment = "prd"
+    project     = "fundacao"
+    owner-id    = "cloud-foundation"
+  }
+
+  depends_on = [module.resource_group]
+}
+
+#  FIM para a criacao do storage account para o container de fundação da Cloud.
 
 #  INICIO da bloco de codigo para criação e aplicação de politica de controle da Cloud.
 
