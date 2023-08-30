@@ -15,6 +15,20 @@ terraform {
   }
 }
 
+# INICIO do bloco para gerenciar a subscription
+
+module "subscription" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/subscription"
+
+  add_subscription = true
+  alias = "WFJ-PRD"
+  subscription_name = "PRD" 
+  subscription_id = "35a89c93-cf4c-47cf-a4b0-c1db8f4241d2"
+  
+}
+
+# FIM do bloco para gerenciar a subscription
+
 # INICIO da bloco de codigo para criação dos containers para toda a parte de fundação da Cloud.
 
 module "resource_group" {
@@ -22,7 +36,7 @@ module "resource_group" {
 
   resource_group_configs = [
     {
-      name        = "primary-foundation"
+      name        = "foundation"
       location    = "eastus"
       description = "Container para hospedar "
     },
