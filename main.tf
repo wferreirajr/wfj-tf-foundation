@@ -4,8 +4,6 @@ provider "azurerm" {
   features {}
 }
 
-// como armazenar o state do terraform em um storage account?
-
 terraform {
   backend "azurerm" {
     resource_group_name  = "my-portfolio"
@@ -20,11 +18,16 @@ terraform {
 module "subscription" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/subscription"
 
-  add_subscription = true
-  alias = "WFJ-PRD"
-  subscription_name = "PRD" 
-  subscription_id = "35a89c93-cf4c-47cf-a4b0-c1db8f4241d2"
-  
+  add_subscription  = true
+  alias             = "WFJ-PRD"
+  subscription_name = "PRD"
+  subscription_id   = "35a89c93-cf4c-47cf-a4b0-c1db8f4241d2"
+
+  additional_tags = {
+    environment = "prd"
+    owner-id    = "cloud-foundation"
+  }
+
 }
 
 # FIM do bloco para gerenciar a subscription
@@ -79,8 +82,8 @@ module "resource_group" {
 
 #  INICIO lock resource group
 
-module "azurerm_management_lock" {
-  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/azurerm_management_lock"
+module "management_lock" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/management_lock"
 
   # for_each = toset(module.resource_group.resource_group_id)
   count = length(module.resource_group.resource_group_id)
@@ -101,7 +104,7 @@ module "storage_account" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/storage_account"
 
   stg_name                 = "wfjstorage"
-  rg_name                  = "primary-foundation"
+  rg_name                  = "foundation"
   location                 = "eastus"
   account_tier             = "Standard"
   account_replication_type = "LRS"
@@ -132,7 +135,7 @@ module "assignment_policy" {
 
 #  FIM da bloco de codigo para criação e aplicação de politica de controle da Cloud.
 
-
+/*
 provider "http" {}
 
 data "http" "external_ip" {
@@ -141,29 +144,5 @@ data "http" "external_ip" {
 
 output "external_ip" {
   value = jsondecode(data.http.external_ip.response_body).ip
-}
-
-/*
-data "azurerm_subscription" "current" {}
-
-resource "azurerm_policy_definition" "example" {
-  name         = "only-deploy-in-westeurope"
-  policy_type  = "Custom"
-  mode         = "All"
-  display_name = "Allowed resource types"
-
-  policy_rule = <<POLICY_RULE
- {
-    "if": {
-      "not": {
-        "field": "location",
-        "equals": "westeurope"
-      }
-    },
-    "then": {
-      "effect": "Deny"
-    }
-  }
-POLICY_RULE
 }
 */
