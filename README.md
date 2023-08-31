@@ -2,9 +2,11 @@
 
 Itens de fundação para MS Azure:
     - Resource Group:  Grupo de recursos para armazenar todos os recursos - OK
-    - Subscription: Subscrição para armazenar todos os recursos
+    - Subscription: Subscrição para armazenar todos os recursos - OK
     - Storage Account: Armazenamento para armazenar os arquivos de estado do Terraform - OK
     - Policy: Políticas de segurança para o Azure onde é possível definir regras de segurança para os recursos
+        - Associar policy existente - OK
+        - Criação de custom policy
     - Key Vault: Armazenamento de chaves e segredos para os recursos
     - Virtual Network: Rede virtual para os recursos
     - Subnet: Subrede para os recursos

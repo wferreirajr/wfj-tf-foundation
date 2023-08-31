@@ -81,22 +81,54 @@ module "resource_group" {
 #  FIM da bloco de codigo para criação dos containers para toda a parte de fundação da Cloud.
 
 #  INICIO lock resource group
-
+/*
 module "management_lock" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/management_lock"
 
-  # for_each = toset(module.resource_group.resource_group_id)
   count = length(module.resource_group.resource_group_id)
 
   name = "lock-iac-foundation"
-  # scope      = each.value
   scope      = module.resource_group.resource_group_id[count.index]
   lock_level = "CanNotDelete"
   note       = "Create lock by Cloud Foundation Teams"
 
 }
-
+*/
 #  FIM lock resource group
+
+# INICIO criação do Virtual Network
+
+module "virtual_network" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/virtual_network"
+
+  vnet_name           = "wfj-vnet"
+  vnet_cidr           = "10.0.0.0/16"
+  location            = "eastus"
+  resource_group_name = "network"
+
+  subnets = [
+    {
+      name           = "wfj-subnet-prd"
+      cidr           = "10.0.1.0/24"
+    },
+    {
+      name           = "wfj-subnet-dev"
+      cidr           = "10.0.2.0/24"
+    }
+  ]
+  
+  dns_servers         = ["1.1.1.1", "8.8.8.8"]
+  additional_tags = {
+    environment = "prd"
+    project     = "fundacao"
+    owner-id    = "cloud-foundation"
+  }
+
+  depends_on = [module.resource_group]
+
+}
+
+# FIM criação do Virtual Network
 
 # INICIO para a criacao do storage account para o container de fundação da Cloud.
 
