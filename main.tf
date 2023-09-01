@@ -106,18 +106,19 @@ module "virtual_network" {
   location            = "eastus"
   resource_group_name = "network"
 
-  subnets = [
+  # dns_servers = ["1.1.1.1", "8.8.8.8"]
+
+subnets = [
     {
-      name           = "wfj-subnet-prd"
-      cidr           = "10.0.1.0/24"
+      name          = "wfj-subnet-prd"
+      address_prefix = "10.0.1.0/24"
     },
     {
-      name           = "wfj-subnet-dev"
-      cidr           = "10.0.2.0/24"
+      name          = "wfj-subnet-des"
+      address_prefix = "10.0.2.0/24"
     }
   ]
-  
-  dns_servers         = ["1.1.1.1", "8.8.8.8"]
+
   additional_tags = {
     environment = "prd"
     project     = "fundacao"
@@ -166,6 +167,49 @@ module "assignment_policy" {
 }
 
 #  FIM da bloco de codigo para criação e aplicação de politica de controle da Cloud.
+
+#  INICIO da bloco de codigo para criação do Network Security Group.
+
+module "my_nsg" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/network_security_group"
+
+  nsg_name           = "wfj-nsg-vnet"
+  location           = "eastus"
+  resource_group_name = "network"
+
+  security_rules = [
+    {
+      name                       = "wfj-allowSSH"
+      priority                   = 100
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "22"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    },
+    {
+      name                       = "wfj-allowHTTP"
+      priority                   = 110
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "80"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    }
+  ]
+
+  additional_tags = {
+    environment = "prd"
+    project     = "fundacao"
+    owner-id    = "cloud-foundation"
+  }
+}
+
+#  FIM da bloco de codigo para criação do Network Security Group.
 
 /*
 provider "http" {}
