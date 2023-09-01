@@ -32,7 +32,7 @@ module "subscription" {
 
 # FIM do bloco para gerenciar a subscription
 
-# INICIO da bloco de codigo para criação dos containers para toda a parte de fundação da Cloud.
+# INICIO da bloco de codigo para criação dos containers (RG) para toda a parte de fundação da Cloud.
 
 module "resource_group" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/resource_group"
