@@ -1,18 +1,5 @@
 # main.tf
 
-provider "azurerm" {
-  features {}
-}
-
-terraform {
-  backend "azurerm" {
-    resource_group_name  = "my-portfolio"
-    storage_account_name = "wfjteste"
-    container_name       = "tfstate"
-    key                  = "terraform.tfstate"
-  }
-}
-
 # INICIO do bloco para gerenciar a subscription
 
 module "subscription" {
@@ -108,13 +95,13 @@ module "virtual_network" {
 
   # dns_servers = ["1.1.1.1", "8.8.8.8"]
 
-subnets = [
+  subnets = [
     {
-      name          = "wfj-subnet-prd"
+      name           = "wfj-subnet-prd"
       address_prefix = "10.0.1.0/24"
     },
     {
-      name          = "wfj-subnet-des"
+      name           = "wfj-subnet-des"
       address_prefix = "10.0.2.0/24"
     }
   ]
@@ -170,11 +157,11 @@ module "assignment_policy" {
 
 #  INICIO da bloco de codigo para criação do Network Security Group.
 
-module "my_nsg" {
+module "network_security_group" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/network_security_group"
 
-  nsg_name           = "wfj-nsg-vnet"
-  location           = "eastus"
+  nsg_name            = "wfj-nsg-vnet-1"
+  location            = "eastus"
   resource_group_name = "network"
 
   security_rules = [
@@ -210,6 +197,38 @@ module "my_nsg" {
 }
 
 #  FIM da bloco de codigo para criação do Network Security Group.
+
+# INICIO da bloco de codigo para criação da VM de backup.
+
+module "virtual_machine_linux" {
+  source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/virtual_machine_linux"
+
+  vm_name             = "wfj-vm-backup"
+  location            = "eastus"
+  resource_group_name = "shared-services"
+  
+  vm_size             = "Standard_B1s"
+
+  img_publisher       = "Canonical"
+  img_offer           = "UbuntuServer"
+  img_sku             = "18.04-LTS"
+  img_version         = "latest"
+  
+  disk_type           = "Standard_LRS"
+  
+  additional_tags = {
+    environment = "prd"
+    owner       = "backup"
+  }
+  
+  subnet_name              = "wfj-subnet-prd"
+  vnet_name                = "wfj-vnet"
+  resource_group_name_vnet = "network"
+
+}
+
+# FIM da bloco de codigo para criação da VM de backup.
+
 
 /*
 provider "http" {}
