@@ -11,7 +11,7 @@ Itens de fundação para MS Azure:
     - Subnet: Subrede para os recursos - OK
     - Network Security Group: Grupo de segurança de rede para os recursos - OK
     - Name Resolution: Resolução de nomes para os recursos (DNS) - OK
-    - Compute: Máquina virtual para os recursos
+    - Compute: Máquina virtual para os recursos - OK
     - Route Table: Tabela de roteamento para os recursos
     - IAM: Controle de acesso para os recursos (usuários, grupos, permissões, etc)
     - Service Principal: Identidade para os recursos (usuário de serviço)
