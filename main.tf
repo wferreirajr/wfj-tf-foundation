@@ -93,7 +93,7 @@ module "virtual_network" {
   location            = "eastus"
   resource_group_name = "network"
 
-  # dns_servers = ["1.1.1.1", "8.8.8.8"]
+  dns_servers = ["1.1.1.1", "8.8.8.8"]
 
   subnets = [
     {
