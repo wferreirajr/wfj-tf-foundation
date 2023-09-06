@@ -200,10 +200,17 @@ module "network_security_group" {
 
 # INICIO da bloco de codigo para criação da VM de backup.
 
+resource "random_password" "wfj_password" {
+  length = 16
+  special = true
+  override_special  = "_#@"
+}
+
 module "virtual_machine_linux" {
   source = "git::https://github.com/wferreirajr/wfj-tf-module.git//azure/virtual_machine_linux"
 
   vm_name             = "wfj-vm-backup"
+  vm_password         = random_password.wfj_password.result
   location            = "eastus"
   resource_group_name = "shared-services"
   
